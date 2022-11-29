@@ -29,7 +29,7 @@ logger = logging.getLogger('aioldap')
 
 
 class Server(object):
-    def __init__(self, host: str, port: int = None, use_ssl: bool = False,
+    def __init__(self, host: str, port: Optional[int] = None, use_ssl: bool = False,
                  ssl_context: Optional[ssl.SSLContext] = None):
         self.host = host
         self.port = port
@@ -44,14 +44,15 @@ class Server(object):
 
 
 class LDAPResponse(object):
+
     def __init__(self, loop, onfinish=None):
         self._onfinish = onfinish
         self.started = asyncio.Event(loop=loop)
         self.finished = asyncio.Event(loop=loop)
-        self.data = None
+        self.data: dict|list[dict] = None
         self.refs = []
         self.additional = {}
-        self.exception = None
+        self.exception: Optional[Exception] = None
 
     async def wait(self):
         await self.finished.wait()
@@ -273,7 +274,7 @@ class LDAPClientProtocol(asyncio.Protocol):
 
 
 class LDAPConnection(object):
-    def __init__(self, server: Server, user: str = None, password: str = None, loop: asyncio.AbstractEventLoop = None):
+    def __init__(self, server: Server, user: Optional[str] = None, password: Optional[str] = None, loop: Optional[asyncio.AbstractEventLoop] = None):
         # TODO add option for wait timeout
         self._responses = {}
         self._msg_id = 0
@@ -324,7 +325,7 @@ class LDAPConnection(object):
         self._msg_id += 1
         return self._msg_id
 
-    async def bind(self, bind_dn: str = None, bind_pw: str = None):
+    async def bind(self, bind_dn: Optional[str] = None, bind_pw: Optional[str] = None):
         """
         Bind to LDAP server
 
