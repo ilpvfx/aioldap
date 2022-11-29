@@ -1,0 +1,20 @@
+options:
+  volumes:
+  - name: 'pip-config'
+    path: '/builder/home/.config/pip'
+
+steps:
+- name: gcr.io/$PROJECT_ID/pip-config
+
+# create build artifacts
+- name: python:3.10.4
+  entrypoint: /bin/bash
+  args:
+    - -c
+    - |
+      pip install build
+      python -m build
+
+# publish artifacts to pypi.ilpvfx.com
+- name: gcr.io/$PROJECT_ID/pypi-publish
+  args: ["dist/ilp_aioldap*"]
