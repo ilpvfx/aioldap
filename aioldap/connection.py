@@ -70,10 +70,10 @@ class Server(object):
 
 
 class LDAPResponse(object):
-    def __init__(self, loop, onfinish=None):
+    def __init__(self, onfinish=None):
         self._onfinish = onfinish
-        self.started = asyncio.Event(loop=loop)
-        self.finished = asyncio.Event(loop=loop)
+        self.started = asyncio.Event()
+        self.finished = asyncio.Event()
         self.data: dict | list[dict] = None
         self.refs = []
         self.additional = {}
@@ -96,7 +96,7 @@ class LDAPClientProtocol(asyncio.Protocol):
         self.transport = None
         self._original_transport = None
         self._using_tls = False
-        self._tls_event = asyncio.Event(loop=loop)
+        self._tls_event = asyncio.Event()
         self._is_bound = False
 
         self.unprocessed = b""
@@ -111,7 +111,7 @@ class LDAPClientProtocol(asyncio.Protocol):
             msg_id = "unbind"
 
         response = LDAPResponse(
-            onfinish=lambda: self.remove_msg_id_response(msg_id), loop=self.loop
+            onfinish=lambda: self.remove_msg_id_response(msg_id)
         )
         self.responses[msg_id] = response
 
