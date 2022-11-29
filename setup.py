@@ -12,7 +12,8 @@ with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
 requirements = [
-    'ldap3==2.5',
+    'ldap3 >=2.5, <3',
+    'async_timeout >=4.0.2, <5',
 ]
 
 setup(
