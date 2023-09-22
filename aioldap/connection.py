@@ -334,11 +334,11 @@ class LDAPConnection(object):
         # TODO add option for wait timeout
         self._responses = {}
         self._msg_id = 0
-        self._proto = None  # type: LDAPClientProtocol
+        self._proto = None  # type: LDAPClientProtocol|None
         self._socket = None
+        if loop is None:
+            loop = asyncio.get_event_loop()
         self.loop = loop
-        if self.loop is None:
-            self.loop = asyncio.get_event_loop()
 
         self.server = server
         self.bind_dn = user
@@ -394,7 +394,7 @@ class LDAPConnection(object):
         :raises LDAPBindException: If credentials are invalid
         """
         # Create proto if its not created already
-        if self._proto is None or self._proto.transport.is_closing():
+        if self._proto is None or self._proto.transport is None or self._proto.transport.is_closing():
             self._socket, self._proto = await self.loop.create_connection(
                 lambda: LDAPClientProtocol(self.loop),
                 host=self.server.host,
@@ -605,7 +605,7 @@ class LDAPConnection(object):
             self._proto = None
 
     async def start_tls(self, ctx: Optional[ssl.SSLContext] = None):
-        if self._proto is None or self._proto.transport.is_closing():
+        if self._proto is None or self._proto.transport is None or self._proto.transport.is_closing():
             self._socket, self._proto = await self.loop.create_connection(
                 lambda: LDAPClientProtocol(self.loop),
                 self.server.host,
